@@ -278,53 +278,6 @@ class MHRelay {
 	}
 }
 
-// new object for scenario activation
-class MHScene {
-	constructor(log, config) {
-		this.config = config || {};
-		this.mh = config.parent.controller;
-		this.name = config.name;
-		this.address = config.address;
-		this.scene = config.scene;
-		this.groups = config.groups || []; 		/* TODO */
-		this.pul = false; 						/* TODO */
-		this.displayName = config.name;
-		this.UUID = UUIDGen.generate(sprintf("scene-%s",config.address));
-		this.log = log;
-		this.power = false;
-		this.bri = 100;
-		this.sat = 0;
-		this.hue = 0;
-		this.log.info(sprintf("LegrandMyHome::MHScene create object: %s - %s", this.address, this.scene));
-		this.mh.addLightBusDevice(this.address);
-	}
-
-	getServices() {
-		var service = new Service.AccessoryInformation();
-		service.setCharacteristic(Characteristic.Name, this.name)
-			   .setCharacteristic(Characteristic.Manufacturer, "Legrand MyHome")
-			   .setCharacteristic(Characteristic.Model, "Scene")
-			   .setCharacteristic(Characteristic.SerialNumber, "Address " + this.address + this.scene);
-
-		this.SceneService = new Service.Switch(this.name);
-
-		this.SceneService
-		    .getCharacteristic(Characteristic.On)
-            .on('set', (level, callback) => {
-				this.log.debug(sprintf("Scene activated: %s = %s",this.address, this.scene));
-				this.power = false;
-				this.mh.sceneCommand(this.address,this.scene)
-				callback(null);
-			})
-			.on('get', (callback) => {
-				callback(null, this.power);
-			});
-			
-		return [service, this.SceneService];
-	}
-}
-
-
 class MHDimmer {
 	constructor(log, config) {
 		this.config = config || {};
